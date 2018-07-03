@@ -45,6 +45,8 @@ public class MainNetParams extends NetworkParameters {
         genesisBlock.setNonce(CoinDefinition.genesisBlockNonce);
         id = ID_MAINNET;
         subsidyDecreaseBlockCount = CoinDefinition.subsidyDecreaseBlockCount;
+        nForkOne = 2282000;
+        nForkTwo = 3030000;
         spendableCoinbaseDepth = CoinDefinition.spendableCoinbaseDepth;
         String genesisHash = genesisBlock.getHashAsString();
         checkState(genesisHash.equals(CoinDefinition.genesisHash),

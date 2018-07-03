@@ -86,6 +86,10 @@ public abstract class NetworkParameters implements Serializable {
      */
     protected int spendableCoinbaseDepth;
     protected int subsidyDecreaseBlockCount;
+
+    // Network forks
+    protected int nForkOne;
+    protected int nForkTwo;
     
     protected int[] acceptableAddressCodes;
     protected String[] dnsSeeds;
@@ -264,6 +268,14 @@ public abstract class NetworkParameters implements Serializable {
 
     public int getSubsidyDecreaseBlockCount() {
         return subsidyDecreaseBlockCount;
+    }
+
+    public int getForkOne() {
+        return nForkOne;
+    }
+
+    public int getForkTwo() {
+        return nForkOne;
     }
 
     /** Returns DNS names that when resolved, give IP addresses of active peers. */

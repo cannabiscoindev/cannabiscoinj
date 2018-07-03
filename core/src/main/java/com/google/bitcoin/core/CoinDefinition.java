@@ -123,20 +123,6 @@ public class CoinDefinition {
     static public long testnetGenesisBlockTime = 1397088621L;                       //main.cpp: LoadBlockIndex
     static public long testnetGenesisBlockNonce = (97207);                         //main.cpp: LoadBlockIndex
 
-
-
-
-
-    //main.cpp GetBlockValue(height, fee)
-    public static final BigInteger GetBlockReward(int height)
-    {
-        int COIN = 1;
-        BigInteger nSubsidy = Utils.toNanoCoins(100, 0);
-        if (height == 1)
-            nSubsidy = Utils.toNanoCoins(420000, 0);
-        return nSubsidy;
-    }
-
     public static int subsidyDecreaseBlockCount = 100000;     //main.cpp GetBlockValue(height, fee)
 
     public static BigInteger proofOfWorkLimit = Utils.decodeCompactBits(0x1e0fffffL);  //main.cpp bnProofOfWorkLimit (~uint256(0) >> 20); // digitalcoin: starting difficulty is 1 / 2^12

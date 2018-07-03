@@ -33,6 +33,8 @@ public class RegTestParams extends TestNet2Params {
         interval = 10000;
         proofOfWorkLimit = PROOF_OF_WORK_LIMIT;
         subsidyDecreaseBlockCount = 150;
+        nForkOne = 0;
+        nForkTwo = 0;
         port = 18444;
     }
 

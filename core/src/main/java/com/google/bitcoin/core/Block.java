@@ -170,9 +170,28 @@ public class Block extends Message {
      * <p>The half-life is controlled by {@link com.google.bitcoin.core.NetworkParameters#getSubsidyDecreaseBlockCount()}.
      * </p>
      */
-    public BigInteger getBlockInflation(int height) {
-        //return Utils.toNanoCoins(50, 0).shiftRight(height / params.getSubsidyDecreaseBlockCount());
-        return /*Utils.toNanoCoins(*/CoinDefinition.GetBlockReward(height)/*, 0)*/;
+    public BigInteger getBlockInflation(int nHeight) {
+        BigInteger nSubsidy = Utils.toNanoCoins(420, 0);
+        if (nHeight == 1) {
+            nSubsidy = Utils.toNanoCoins(21882000, 0);
+            return nSubsidy;
+        } else if (nHeight <= 51) {
+            nSubsidy = Utils.toNanoCoins(0, 0);
+            return nSubsidy;
+        }
+
+        if (nHeight < params.getForkOne()) {
+            nSubsidy.shiftRight(nHeight / params.getSubsidyDecreaseBlockCount());
+        } else {
+            // Hard fork one. Fix inflation model. 70 coins per block.
+            nSubsidy = Utils.toNanoCoins(70, 0);
+
+            // Halving when half of total coins are minted then every four years
+            // Reduce 4514 blocks early to compensate for minting Bittrex replacement funds
+            nSubsidy.shiftRight((nHeight - 969725) / (3000000 - 4514));
+        }
+
+        return nSubsidy;
     }
 
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
