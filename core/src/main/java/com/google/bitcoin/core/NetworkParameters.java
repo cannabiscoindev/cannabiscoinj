@@ -85,6 +85,7 @@ public abstract class NetworkParameters implements Serializable {
      * The depth of blocks required for a coinbase transaction to be spendable.
      */
     protected int spendableCoinbaseDepth;
+    protected int spendableCoinbaseDepthForkOne;
     protected int subsidyDecreaseBlockCount;
 
     // Network forks
@@ -248,6 +249,10 @@ public abstract class NetworkParameters implements Serializable {
 
     public int getSpendableCoinbaseDepth() {
         return spendableCoinbaseDepth;
+    }
+
+    public int getSpendableCoinbaseDepthForkOne() {
+        return spendableCoinbaseDepthForkOne;
     }
 
     /**

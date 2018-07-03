@@ -62,6 +62,7 @@ public class CoinDefinition {
     }
 
     public static int spendableCoinbaseDepth = 30; //main.h: static const int COINBASE_MATURITY
+    public static int spendableCoinbaseDepthForkOne = 100;
     public static final BigInteger MAX_MONEY = BigInteger.valueOf(420000000).multiply(Utils.COIN);                 //main.h:  MAX_MONEY
     //public static final String MAX_MONEY_STRING = "420000000";     //main.h:  MAX_MONEY
 

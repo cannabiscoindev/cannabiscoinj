@@ -48,6 +48,7 @@ public class MainNetParams extends NetworkParameters {
         nForkOne = 2282000;
         nForkTwo = 3030000;
         spendableCoinbaseDepth = CoinDefinition.spendableCoinbaseDepth;
+        spendableCoinbaseDepthForkOne = CoinDefinition.spendableCoinbaseDepthForkOne;
         String genesisHash = genesisBlock.getHashAsString();
         checkState(genesisHash.equals(CoinDefinition.genesisHash),
                 genesisHash);

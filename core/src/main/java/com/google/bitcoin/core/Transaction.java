@@ -582,7 +582,10 @@ public class Transaction extends ChildMessage implements Serializable {
         if (getConfidence().getConfidenceType() != ConfidenceType.BUILDING)
             return false;
 
-        return getConfidence().getDepthInBlocks() >= params.getSpendableCoinbaseDepth();
+        if (getConfidence().getDepthInBlocks() < params.getForkOne())
+            return getConfidence().getDepthInBlocks() >= params.getSpendableCoinbaseDepth();
+        else
+            return getConfidence().getDepthInBlocks() >= params.getSpendableCoinbaseDepthForkOne();
     }
 
     public String toString() {
