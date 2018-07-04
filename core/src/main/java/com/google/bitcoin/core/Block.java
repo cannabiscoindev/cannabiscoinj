@@ -21,6 +21,7 @@ import com.google.bitcoin.script.ScriptBuilder;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.cannabiscoin.crypto.X11;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,8 @@ import java.util.List;
 
 import static com.google.bitcoin.core.Utils.doubleDigest;
 import static com.google.bitcoin.core.Utils.doubleDigestTwoBuffers;
+import static com.google.bitcoin.core.Utils.scryptDigest;
+import static com.cannabiscoin.crypto.X11.x11Digest;
 
 /**
  * <p>A block is a group of transactions, and is one of the fundamental data structures of the Bitcoin system.
@@ -62,7 +65,7 @@ public class Block extends Message {
      * upgrade everyone to change this, so Bitcoin can continue to grow. For now it exists as an anti-DoS measure to
      * avoid somebody creating a titanically huge but valid block and forcing everyone to download/store it forever.
      */
-    public static final int MAX_BLOCK_SIZE = 1 * 1000 * 1000;
+    public static final int MAX_BLOCK_SIZE = CoinDefinition.MAX_BLOCK_SIZE; //1 * 1000 * 1000;
     /**
      * A "sigop" is a signature verification operation. Because they're expensive we also impose a separate limit on
      * the number in a block to prevent somebody mining a huge block that has way more sigops than normal, so is very
@@ -86,6 +89,7 @@ public class Block extends Message {
 
     /** Stores the hash of the block. If null, getHash() will recalculate it. */
     private transient Sha256Hash hash;
+    private transient Sha256Hash scryptHash;
 
     private transient boolean headerParsed;
     private transient boolean transactionsParsed;
@@ -167,7 +171,8 @@ public class Block extends Message {
      * </p>
      */
     public BigInteger getBlockInflation(int height) {
-        return Utils.toNanoCoins(50, 0).shiftRight(height / params.getSubsidyDecreaseBlockCount());
+        //return Utils.toNanoCoins(50, 0).shiftRight(height / params.getSubsidyDecreaseBlockCount());
+        return /*Utils.toNanoCoins(*/CoinDefinition.GetBlockReward(height)/*, 0)*/;
     }
 
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
@@ -189,7 +194,7 @@ public class Block extends Message {
         difficultyTarget = readUint32();
         nonce = readUint32();
 
-        hash = new Sha256Hash(Utils.reverseBytes(Utils.doubleDigest(bytes, offset, cursor)));
+        hash = new Sha256Hash(Utils.reverseBytes(x11Digest(bytes, offset, cursor)));
 
         headerParsed = true;
         headerBytesValid = parseRetain;
@@ -503,7 +508,17 @@ public class Block extends Message {
         try {
             ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(HEADER_SIZE);
             writeHeader(bos);
-            return new Sha256Hash(Utils.reverseBytes(doubleDigest(bos.toByteArray())));
+            return new Sha256Hash(Utils.reverseBytes(x11Digest(bos.toByteArray())));
+        } catch (IOException e) {
+            throw new RuntimeException(e); // Cannot happen.
+        }
+    }
+
+    private Sha256Hash calculateScryptHash() {
+        try {
+            ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(HEADER_SIZE);
+            writeHeader(bos);
+            return new Sha256Hash(Utils.reverseBytes(scryptDigest(bos.toByteArray())));
         } catch (IOException e) {
             throw new RuntimeException(e); // Cannot happen.
         }
@@ -518,6 +533,10 @@ public class Block extends Message {
         return getHash().toString();
     }
 
+    public String getScryptHashAsString() {
+        return getScryptHash().toString();
+    }
+
     /**
      * Returns the hash of the block (which for a valid, solved block should be
      * below the target). Big endian.
@@ -527,6 +546,13 @@ public class Block extends Message {
             hash = calculateHash();
         return hash;
     }
+
+    public Sha256Hash getScryptHash() {
+        if (scryptHash == null)
+            scryptHash = calculateScryptHash();
+        return scryptHash;
+    }
+
 
     /**
      * The number that is one greater than the largest representable SHA-256
@@ -643,12 +669,24 @@ public class Block extends Message {
         // To prevent this attack from being possible, elsewhere we check that the difficultyTarget
         // field is of the right value. This requires us to have the preceeding blocks.
         BigInteger target = getDifficultyTargetAsInteger();
+        BigInteger h = null;
+        switch (CoinDefinition.coinPOWHash)
+        {
+            case scrypt:
+                    h = getScryptHash().toBigInteger();
+                    break;
+            case SHA256:
+                    h = getHash().toBigInteger();
+                    break;
+            default:  //use the normal getHash() method.
+                h = getHash().toBigInteger();
+                break;
+        }
 
-        BigInteger h = getHash().toBigInteger();
         if (h.compareTo(target) > 0) {
             // Proof of work check failed!
             if (throwException)
-                throw new VerificationException("Hash is higher than target: " + getHashAsString() + " vs "
+                throw new VerificationException("Hash is higher than target: " + getScryptHashAsString() + " vs "
                         + target.toString(16));
             else
                 return false;
@@ -879,6 +917,7 @@ public class Block extends Message {
         unCacheHeader();
         this.prevBlockHash = prevBlockHash;
         this.hash = null;
+        this.scryptHash = null;
     }
 
     /**
@@ -901,6 +940,7 @@ public class Block extends Message {
         unCacheHeader();
         this.time = time;
         this.hash = null;
+        this.scryptHash = null;
     }
 
     /**
@@ -922,6 +962,7 @@ public class Block extends Message {
         unCacheHeader();
         this.difficultyTarget = compactForm;
         this.hash = null;
+        this.scryptHash = null;
     }
 
     /**
@@ -938,6 +979,7 @@ public class Block extends Message {
         unCacheHeader();
         this.nonce = nonce;
         this.hash = null;
+        this.scryptHash = null;
     }
 
     /** Returns an immutable list of transactions held in this block. */

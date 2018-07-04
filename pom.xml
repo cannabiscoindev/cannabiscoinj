@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.google</groupId>
-  <artifactId>bitcoinj-parent</artifactId>
+  <artifactId>cannabiscoinj-parent</artifactId>
   <version>0.12-SNAPSHOT</version>
   <packaging>pom</packaging>
 
@@ -13,21 +13,21 @@
     <module>tools</module>
   </modules>
 
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
 
-  <scm>
-    <connection>scm:git:https://code.google.com/p/bitcoinj/</connection>
-    <developerConnection>scm:git:https://code.google.com/p/bitcoinj/</developerConnection>
-    <url>http://code.google.com/p/bitcoinj/source/browse</url>
-  </scm>
+    <scm>
+        <connection>scm:git:https://code.google.com/p/bitcoinj/</connection>
+        <developerConnection>scm:git:https://code.google.com/p/bitcoinj/</developerConnection>
+        <url>http://code.google.com/p/bitcoinj/source/browse</url>
+    </scm>
 
-  <name>bitcoinj Parent</name>
-  <description>Provides the common configuration for the BitCoinJ modules</description>
-  <url>http://code.google.com/p/bitcoinj</url>
+  <name>cannabiscoinj Parent</name>
+  <description>Provides the common configuration for the cannabiscoinJ modules</description>
+  <url>https://github.com/cannabiscoin/cannabiscoinj</url>
 
   <licenses>
     <license>
@@ -40,22 +40,23 @@
 
   <issueManagement>
     <system>Google Code</system>
-    <url>http://code.google.com/p/bitcoinj/issues/list</url>
+    <url>http://code.google.com/p/cannabiscoinj/issues/list</url>
   </issueManagement>
 
   <mailingLists>
     <mailingList>
-      <name>bitcoinj Google Group</name>
-      <post>https://groups.google.com/forum/#!forum/bitcoinj</post>
+      <name>cannabiscoinj Google Group</name>
+      <post>https://groups.google.com/forum/#!forum/cannabiscoinj</post>
     </mailingList>
   </mailingLists>
 
   <repositories>
     <repository>
-        <id>bitcoinj-distribution</id>
+        <id>cannabiscoinj-distribution</id>
         <url>https://distribution.bitcoinj.googlecode.com/git/releases</url>
     </repository>
   </repositories>
+
 
   <!-- Common build plugin configuration -->
   <build>
@@ -74,6 +75,45 @@
       </plugin>
     </plugins>
   </build>
+  
+  <profiles>
+      <profile>
+    <id>sign</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jarsigner-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>signing</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>package</phase>
+                <inherited>true</inherited>
+                <configuration>
+                  <archiveDirectory></archiveDirectory>
+                  <includes>
+                    <include>target/*.apk</include>
+                  </includes>
+                  <keystore>cannabiscoin.jks</keystore>
+                  <storepass>PASSWORD</storepass>
+                  <keypass>PASSWORD</keypass>
+                  <alias>ALIAS</alias>
+<!--                  <arguments>
+                    <argument>-sigalg</argument><argument>MD5withRSA</argument>
+                    <argument>-digestalg</argument><argument>SHA1</argument>
+                  </arguments>  -->
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    </profiles>
+
 
   <dependencies>
       <dependency>
@@ -81,7 +121,7 @@
         <artifactId>slf4j-api</artifactId>
         <version>1.7.6</version>
       </dependency>
-      <!-- bitcoinj consumers are expected to provide their own SLF4J adapters
+      <!-- cannabiscoinj consumers are expected to provide their own SLF4J adapters
     such as logback, slf4j-log4j12, slf4j-jcl and so on
     see http://www.slf4j.org/faq.html -->
       <dependency>

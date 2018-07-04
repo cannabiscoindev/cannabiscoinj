@@ -101,7 +101,7 @@ public class PeerGroup extends AbstractExecutionThreadService implements Transac
     // until we reach this count.
     @GuardedBy("lock") private int maxConnections;
     // Minimum protocol version we will allow ourselves to connect to: require Bloom filtering.
-    private volatile int vMinRequiredProtocolVersion = FilteredBlock.MIN_PROTOCOL_VERSION;
+    private volatile int vMinRequiredProtocolVersion = CoinDefinition.MIN_PROTOCOL_VERSION;//FilteredBlock.MIN_PROTOCOL_VERSION;  //Will this break the bloomfiltering in other coin apps?
 
     // Runs a background thread that we use for scheduling pings to our peers, so we can measure their performance
     // and network latency. We ping peers every pingIntervalMsec milliseconds.
@@ -134,7 +134,7 @@ public class PeerGroup extends AbstractExecutionThreadService implements Transac
         }
     };
 
-    private int minBroadcastConnections = 0;
+    private int minBroadcastConnections = CoinDefinition.minBroadcastConnections;
     private Runnable bloomSendIfChanged = new Runnable() {
         @Override public void run() {
             recalculateFastCatchupAndFilter(FilterRecalculateMode.SEND_IF_CHANGED);
@@ -577,7 +577,7 @@ public class PeerGroup extends AbstractExecutionThreadService implements Transac
     }
 
     protected void discoverPeers() throws PeerDiscoveryException {
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();       //removed to reduce log file usage
         Set<PeerAddress> addressSet = Sets.newHashSet();
         for (PeerDiscovery peerDiscovery : peerDiscoverers) {
             InetSocketAddress[] addresses;
@@ -593,8 +593,8 @@ public class PeerGroup extends AbstractExecutionThreadService implements Transac
         } finally {
             lock.unlock();
         }
-        log.info("Peer discovery took {}msec and returned {} items",
-                System.currentTimeMillis() - start, addressSet.size());
+        //log.info("Peer discovery took {}msec and returned {} items",
+        //        System.currentTimeMillis() - start, addressSet.size());
     }
 
     @Override

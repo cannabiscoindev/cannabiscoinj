@@ -16,6 +16,7 @@
 
 package com.google.bitcoin.params;
 
+import com.google.bitcoin.core.CoinDefinition;
 import com.google.bitcoin.core.NetworkParameters;
 import com.google.bitcoin.core.Utils;
 import org.spongycastle.util.encoders.Hex;
@@ -30,29 +31,30 @@ public class TestNet3Params extends NetworkParameters {
     public TestNet3Params() {
         super();
         id = ID_TESTNET;
+
         // Genesis hash is 000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943
+
         packetMagic = 0x0b110907;
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
         proofOfWorkLimit = Utils.decodeCompactBits(0x1d00ffffL);
         port = 18333;
-        addressHeader = 111;
-        p2shHeader = 196;
+        addressHeader = CoinDefinition.testnetAddressHeader;
+        p2shHeader = CoinDefinition.testnetp2shHeader;
         acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
-        dumpedPrivateKeyHeader = 239;
-        genesisBlock.setTime(1296688602L);
-        genesisBlock.setDifficultyTarget(0x1d00ffffL);
-        genesisBlock.setNonce(414098458);
+        dumpedPrivateKeyHeader = 128 + CoinDefinition.testnetAddressHeader;
+        genesisBlock.setTime(CoinDefinition.testnetGenesisBlockTime);
+        genesisBlock.setDifficultyTarget(CoinDefinition.testnetGenesisBlockDifficultyTarget);
+        genesisBlock.setNonce(CoinDefinition.testnetGenesisBlockNonce);
         spendableCoinbaseDepth = 100;
-        subsidyDecreaseBlockCount = 210000;
+        subsidyDecreaseBlockCount = CoinDefinition.subsidyDecreaseBlockCount;
         String genesisHash = genesisBlock.getHashAsString();
-        checkState(genesisHash.equals("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
-        alertSigningKey = Hex.decode("04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a");
+        if(CoinDefinition.supportsTestNet)
+            checkState(genesisHash.equals(CoinDefinition.testnetGenesisHash));
+        alertSigningKey = Hex.decode(CoinDefinition.TESTNET_SATOSHI_KEY);
 
-        dnsSeeds = new String[] {
-                "testnet-seed.bitcoin.petertodd.org",
-                "testnet-seed.bluematt.me"
-        };
+        dnsSeeds = CoinDefinition.dnsSeeds;
+
     }
 
     private static TestNet3Params instance;

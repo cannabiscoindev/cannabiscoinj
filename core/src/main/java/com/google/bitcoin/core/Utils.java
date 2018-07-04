@@ -20,6 +20,7 @@ import com.google.common.base.Charsets;
 import com.google.common.primitives.UnsignedLongs;
 import org.spongycastle.crypto.digests.RIPEMD160Digest;
 import org.spongycastle.util.encoders.Hex;
+import com.lambdaworks.crypto.SCrypt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class Utils {
     }
 
     /** The string that prefixes all text messages signed using Bitcoin keys. */
-    public static final String BITCOIN_SIGNED_MESSAGE_HEADER = "Bitcoin Signed Message:\n";
+    public static final String BITCOIN_SIGNED_MESSAGE_HEADER = CoinDefinition.coinName + " Signed Message:\n";
     public static final byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES = BITCOIN_SIGNED_MESSAGE_HEADER.getBytes(Charsets.UTF_8);
 
     // TODO: Replace this nanocoins business with something better.
@@ -123,7 +124,7 @@ public class Utils {
         if (bigint.signum() < 0)
             throw new ArithmeticException("Negative coins specified");
         if (bigint.compareTo(NetworkParameters.MAX_MONEY) > 0)
-            throw new ArithmeticException("Amount larger than the total quantity of Bitcoins possible specified.");
+            throw new ArithmeticException("Amount larger than the total quantity of "+CoinDefinition.coinName+"s possible specified.");
         return bigint;
     }
 
@@ -188,6 +189,14 @@ public class Utils {
      */
     public static byte[] doubleDigest(byte[] input) {
         return doubleDigest(input, 0, input.length);
+    }
+
+    public static byte[] scryptDigest(byte[] input) {
+        try {
+            return SCrypt.scrypt(input, input, 1024, 1, 1, 32);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

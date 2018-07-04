@@ -636,9 +636,9 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
             BigInteger valueSentToMe = tx.getValueSentToMe(this);
             BigInteger valueSentFromMe = tx.getValueSentFromMe(this);
             if (log.isInfoEnabled()) {
-                log.info(String.format("Received a pending transaction %s that spends %s BTC from our own wallet," +
-                        " and sends us %s BTC", tx.getHashAsString(), Utils.bitcoinValueToFriendlyString(valueSentFromMe),
-                        Utils.bitcoinValueToFriendlyString(valueSentToMe)));
+                log.info(String.format("Received a pending transaction %s that spends %s %s from our own wallet," +
+                        " and sends us %s %s", tx.getHashAsString(), Utils.bitcoinValueToFriendlyString(valueSentFromMe), CoinDefinition.coinTicker,
+                        Utils.bitcoinValueToFriendlyString(valueSentToMe),CoinDefinition.coinTicker));
             }
             if (tx.getConfidence().getSource().equals(TransactionConfidence.Source.UNKNOWN)) {
                 log.warn("Wallet received transaction with an unknown source. Consider tagging it!");
@@ -827,8 +827,8 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
         BigInteger valueSentToMe = tx.getValueSentToMe(this);
         BigInteger valueDifference = valueSentToMe.subtract(valueSentFromMe);
 
-        log.info("Received tx{} for {} BTC: {} [{}] in block {}", sideChain ? " on a side chain" : "",
-                bitcoinValueToFriendlyString(valueDifference), tx.getHashAsString(), relativityOffset,
+        log.info("Received tx{} for {} {}: {} [{}] in block {}", sideChain ? " on a side chain" : "",
+                bitcoinValueToFriendlyString(valueDifference), CoinDefinition.coinTicker,tx.getHashAsString(), relativityOffset,
                 block != null ? block.getHeader().getHash() : "(unit test)");
 
         onWalletChangedSuppressions++;
@@ -2332,9 +2332,11 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
             StringBuilder builder = new StringBuilder();
             BigInteger estimatedBalance = getBalance(BalanceType.ESTIMATED);
             BigInteger availableBalance = getBalance(BalanceType.AVAILABLE);
-            builder.append(String.format("Wallet containing %s BTC (available: %s BTC) in:%n",
-                    bitcoinValueToPlainString(estimatedBalance), bitcoinValueToPlainString(availableBalance)));
+            builder.append(String.format("Wallet containing %s %s (available: %s %s) in:%n",
+                    bitcoinValueToPlainString(estimatedBalance), CoinDefinition.coinTicker, bitcoinValueToPlainString(availableBalance), CoinDefinition.coinTicker));
+
             builder.append(String.format("  %d pending transactions%n", pending.size()));
+
             builder.append(String.format("  %d unspent transactions%n", unspent.size()));
             builder.append(String.format("  %d spent transactions%n", spent.size()));
             builder.append(String.format("  %d dead transactions%n", dead.size()));
